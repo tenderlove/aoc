@@ -1,21 +1,12 @@
 INPUT = 3018458
 
 class Elf < Struct.new(:left, :name, :presents)
-  include Enumerable
-
   def steal
-    raise if presents == 0
     self.presents += left.presents
     left.presents = 0
-  end
 
-  def each
-    yield self
-    head = self
-    while head.left != self
-      yield head.left
-      head = head.left
-    end
+    puts "eliminating #{self.left.name}"
+    self.left = self.left.left
   end
 end
 
@@ -32,10 +23,6 @@ puts "done building"
 until head.presents == INPUT
   head.steal
 
-  while head.left.presents == 0
-    puts "eliminating #{head.left.name}"
-    head.left = head.left.left
-  end
   head = head.left
 end
 
