@@ -1,29 +1,46 @@
 INPUT = 3018458
 
-class Elf < Struct.new(:left, :name, :presents)
-  def steal
-    self.presents += left.presents
-    left.presents = 0
+class Elf
+  include Enumerable
 
-    puts "eliminating #{self.left.name}"
-    self.left = self.left.left
+  attr_accessor :name, :presents, :ary
+
+  def initialize name, presents
+    @ary       = nil
+    @name      = name
+    @left_idx  = name
+    @presents  = presents
+  end
+
+  def steal me, ary
+    target_idx = me + (ary.length / 2)
+    if target_idx >= ary.length
+      target_idx -= ary.length
+    end
+    @presents += ary.delete_at(target_idx).presents
   end
 end
 
 def build max
-  elves = max.times.map { |i| Elf.new nil, i + 1, 1 }
-  elves.each_with_index { |e, i| e.left = elves[i + 1] || elves.first }
-  elves.first
+  max.times.map { |i| Elf.new i + 1, 1 }
 end
 
-head = build INPUT
+elves = build INPUT
 
 puts "done building"
+GC.disable
 
-until head.presents == INPUT
-  head.steal
-
-  head = head.left
+idx = 0
+until elves.length == 1
+  elves[idx].steal(idx, elves)
+  if( (idx + 1) >= elves.length)
+    idx = 0
+  else
+    idx += 1
+  end
+  if elves.length % 10_000 == 0
+    p elves.length => Time.now
+  end
 end
 
-p head.name
+p elves.first.name
