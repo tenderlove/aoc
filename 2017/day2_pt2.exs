@@ -1,4 +1,4 @@
-spreadsheet = Enum.map IO.stream(:stdio, :line), fn line ->
+IO.puts Enum.sum Enum.map IO.stream(:stdio, :line), fn line ->
   with row = Enum.sort Enum.map String.split(line, ~r{[\t\n]}, trim: true), &String.to_integer/1
   do
     num = fn [head | rest], func ->
@@ -9,4 +9,3 @@ spreadsheet = Enum.map IO.stream(:stdio, :line), fn line ->
     num.(row, num)
   end
 end
-IO.inspect Enum.sum spreadsheet
